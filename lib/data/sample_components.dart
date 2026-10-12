@@ -1,67 +1,86 @@
-import '../models/component.dart';
+import '../models/component_model.dart';
 
-/// Data contoh — digunakan sebagai fallback jika API gagal dijangkau atau sedang masa development.
 final List<Component> sampleComponents = [
-  const Component(
-    id: 'fan-01',
-    name: 'Kipas Pendingin (Cooling Fan)',
-    status: ComponentStatus.damaged,
-    description:
-        'Kipas menunjukkan getaran tidak normal dan suara berisik saat beroperasi. '
-        'Kemungkinan bearing aus atau baling-baling tidak seimbang.',
-    modelAssetPath: 'assets/models/fan.glb',
+  Component(
+    id: 'comp_01',
+    name: 'RAM DDR4 Corsair Vengeance 16GB',
+    category: 'Memory (RAM)',
+    modelAssetPath: 'assets/models/ram.gltf',
+    description: 'Modul memori RAM berkecepatan tinggi 3200MHz dengan heatsink aluminium.',
+    healthStatus: ComponentHealth.warning,
+    issueDescription: 'Pin konektor tembaga terlihat teroksidasi dan kotor akibat debu lembap.',
+    temperature: 46.5,
+    usageHours: 2450,
     maintenanceSteps: [
-      MaintenanceStep(
-        title: 'Matikan daya utama',
-        description:
-            'Pastikan sumber listrik ke unit sudah diputus total sebelum membuka casing.',
-      ),
-      MaintenanceStep(
-        title: 'Lepas baut casing',
-        description: 'Gunakan obeng plus untuk melepas 4 baut penutup kipas.',
-      ),
-      MaintenanceStep(
-        title: 'Periksa bearing kipas',
-        description:
-            'Cek apakah bearing aus atau kering; beri pelumas jika masih bisa diselamatkan, '
-            'ganti jika sudah longgar.',
-      ),
-      MaintenanceStep(
-        title: 'Pasang kembali & uji nyala',
-        description: 'Rakit ulang casing, nyalakan unit, dan pastikan suara sudah normal.',
-      ),
+      'Matikan daya PC dan cabut kabel power supply.',
+      'Lepaskan modul RAM dengan menekan pengait di kedua ujung slot.',
+      'Gunakan penghapus karet bersih untuk menggosok pin konektor kuningan secara lembut.',
+      'Bersihkan sisa remahan dengan kuas antistatis / isopropyl alcohol 99%.',
+      'Pasang kembali sampai berbunyi klik.',
     ],
   ),
-  const Component(
-    id: 'belt-02',
-    name: 'Belt Konveyor',
-    status: ComponentStatus.warning,
-    description:
-        'Belt menunjukkan tanda keausan pada tepi. Belum kritis, tapi perlu '
-        'pemeriksaan berkala agar tidak putus mendadak.',
-    modelAssetPath: 'assets/models/belt.glb',
+  Component(
+    id: 'comp_02',
+    name: 'GPU NVIDIA RTX 3060 12GB',
+    category: 'Grafis (GPU)',
+    modelAssetPath: 'assets/models/gpu.gltf',
+    description: 'Kartu grafis gaming dan rendering dengan sistem pendingin dual fan.',
+    healthStatus: ComponentHealth.damaged,
+    issueDescription: 'Kipas pendingin kedua macet (RPM 0) dan suhu overheating melebihi batas wajar.',
+    temperature: 88.0,
+    usageHours: 4120,
     maintenanceSteps: [
-      MaintenanceStep(
-        title: 'Cek ketegangan belt',
-        description: 'Pastikan tensi belt sesuai spesifikasi pada manual mesin.',
-      ),
-      MaintenanceStep(
-        title: 'Periksa alignment',
-        description: 'Pastikan belt sejajar dengan pulley, tidak miring ke salah satu sisi.',
-      ),
+      'Periksa apakah ada kabel atau kotoran yang menghalangi bilah kipas.',
+      'Lepaskan heatsink dan bersihkan debu tebal pada sirip pendingin.',
+      'Ganti thermal paste lama dengan yang baru (thermal conductivity tinggi).',
+      'Uji bearing kipas; jika motor kipas rusak permanen, lakukan penggantian unit kipas GPU.',
     ],
   ),
-  const Component(
-    id: 'motor-03',
-    name: 'Motor Listrik',
-    status: ComponentStatus.normal,
-    description: 'Kondisi motor saat ini normal. Tidak ada tindakan yang diperlukan.',
-    modelAssetPath: 'assets/models/motor.glb',
+  Component(
+    id: 'comp_03',
+    name: 'Motherboard B550M Pro',
+    category: 'Mainboard',
+    modelAssetPath: 'assets/models/motherboard.gltf',
+    description: 'Papan sirkuit utama dengan socket AM4, slot PCIe 4.0 dan power delivery VRM.',
+    healthStatus: ComponentHealth.damaged,
+    issueDescription: 'Ditemukan kapasitor elektrolit di dekat jalur VRM dalam kondisi kembung / bocor.',
+    temperature: 52.3,
+    usageHours: 5200,
     maintenanceSteps: [
-      MaintenanceStep(
-        title: 'Pemeriksaan rutin',
-        description: 'Lanjutkan jadwal pemeriksaan berkala sesuai SOP.',
-      ),
+      'Segera hentikan pengoperasian komputer untuk mencegah korsleting sirkuit.',
+      'Gunakan multimeter untuk mengukur nilai kapasitansi dan resistansi ESR.',
+      'Lakukan desoldering untuk melepas kapasitor yang rusak.',
+      'Solder kapasitor pengganti dengan spesifikasi voltase dan microfarad yang setara.',
+    ],
+  ),
+  Component(
+    id: 'comp_04',
+    name: 'Chassis Cooling Fan 120mm',
+    category: 'Pendingin (Fan)',
+    modelAssetPath: 'assets/models/fan.gltf',
+    description: 'Kipas sirkulasi udara casing berkecepatan 1500 RPM dengan bearing hidrolik.',
+    healthStatus: ComponentHealth.good,
+    issueDescription: 'Aliran sirkulasi normal, getaran minim dan bearing berfungsi prima.',
+    temperature: 32.0,
+    usageHours: 890,
+    maintenanceSteps: [
+      'Bersihkan debu rutin pada bilah kipas menggunakan blower setiap 3 bulan.',
+      'Periksa kekencangan baut pengikat pada sasis casing.',
+    ],
+  ),
+  Component(
+    id: 'comp_05',
+    name: 'Power Supply 650W Bronze 80+',
+    category: 'Catu Daya (PSU)',
+    modelAssetPath: 'assets/models/psu.gltf',
+    description: 'Unit penyalur daya dengan proteksi OVP, UVP, SCP, dan efisiensi 85%.',
+    healthStatus: ComponentHealth.good,
+    issueDescription: 'Voltase 12V, 5V, dan 3.3V stabil pada batas toleransi aman.',
+    temperature: 39.8,
+    usageHours: 1950,
+    maintenanceSteps: [
+      'Semprotkan kompresor udara kering ke lubang ventilasi intake PSU.',
+      'Jangan pernah membuka casing dalam PSU jika tidak memiliki keahlian kelistrikan tingkat lanjut.',
     ],
   ),
 ];

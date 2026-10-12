@@ -1,171 +1,312 @@
 import 'package:flutter/material.dart';
-import '../models/component.dart';
+import '../models/component_model.dart';
+import 'ar_scan_screen.dart';
 
-class ComponentDetailScreen extends StatefulWidget {
+class ComponentDetailScreen extends StatelessWidget {
   final Component component;
 
-  const ComponentDetailScreen({super.key, required this.component});
+  const ComponentDetailScreen({
+    super.key,
+    required this.component,
+  });
 
-  @override
-  State<ComponentDetailScreen> createState() => _ComponentDetailScreenState();
-}
-
-class _ComponentDetailScreenState extends State<ComponentDetailScreen> {
-  int _currentStep = 0;
-
-  Color _statusColor(ComponentStatus status) {
-    switch (status) {
-      case ComponentStatus.normal:
-        return Colors.green;
-      case ComponentStatus.warning:
-        return Colors.orange;
-      case ComponentStatus.damaged:
-        return Colors.redAccent;
-    }
-  }
-
-  String _statusLabel(ComponentStatus status) {
-    switch (status) {
-      case ComponentStatus.normal:
-        return 'Normal';
-      case ComponentStatus.warning:
-        return 'Perlu Perhatian';
-      case ComponentStatus.damaged:
-        return 'Rusak';
+  Color _getStatusColor() {
+    switch (component.healthStatus) {
+      case ComponentHealth.good:
+        return const Color(0xFF10B981);
+      case ComponentHealth.warning:
+        return const Color(0xFFF59E0B);
+      case ComponentHealth.damaged:
+        return const Color(0xFFEF4444);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final statusColor = _getStatusColor();
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFF0B111E),
       appBar: AppBar(
-        title: Text(widget.component.name),
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.transparent,
+        backgroundColor: const Color(0xFF0F172A),
+        elevation: 0,
+        title: Text(
+          component.name,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
-      body: Column(
-        children: [
-          // Header Status
-          Container(
-            padding: const EdgeInsets.all(20),
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: _statusColor(widget.component.status).withOpacity(0.05),
-              border: Border(
-                bottom: BorderSide(
-                  color: _statusColor(widget.component.status).withOpacity(0.2),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Status Banner Hero Card
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFF1E293B),
+                    statusColor.withValues(alpha: 0.15),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: statusColor.withValues(alpha: 0.4), width: 1.5),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.4),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          component.category,
+                          style: const TextStyle(
+                            color: Color(0xFF38BDF8),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: statusColor.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: statusColor),
+                        ),
+                        child: Text(
+                          component.healthStatusText,
+                          style: TextStyle(
+                            color: statusColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    component.name,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    component.description,
+                    style: const TextStyle(
+                      color: Color(0xFF94A3B8),
+                      fontSize: 13.5,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Telemetry metrics
+                  Row(
+                    children: [
+                      _buildMetricTile(
+                        icon: Icons.thermostat_rounded,
+                        color: const Color(0xFF38BDF8),
+                        title: 'Suhu Kerja',
+                        value: '${component.temperature}°C',
+                      ),
+                      const SizedBox(width: 14),
+                      _buildMetricTile(
+                        icon: Icons.access_time_rounded,
+                        color: const Color(0xFFA78BFA),
+                        title: 'Jam Pemakaian',
+                        value: '${component.usageHours} Jam',
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Diagnostic & Issue Report
+            const Text(
+              'Laporan Hasil Diagnostik',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF131D2E),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    component.healthStatus == ComponentHealth.good
+                        ? Icons.check_circle_outline
+                        : Icons.warning_amber_rounded,
+                    color: statusColor,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      component.issueDescription,
+                      style: const TextStyle(
+                        color: Color(0xFFE2E8F0),
+                        fontSize: 13.5,
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Maintenance Checklist
+            if (component.maintenanceSteps.isNotEmpty) ...[
+              const Text(
+                'Panduan Tindakan & Perbaikan',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              ...component.maintenanceSteps.asMap().entries.map((e) {
+                final idx = e.key + 1;
+                final step = e.value;
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF131D2E),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CircleAvatar(
+                        radius: 12,
+                        backgroundColor: const Color(0xFF0284C7),
+                        child: Text(
+                          '$idx',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          step,
+                          style: const TextStyle(
+                            color: Color(0xFFCBD5E1),
+                            fontSize: 13,
+                            height: 1.35,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ],
+            const SizedBox(height: 30),
+
+            // Action Button: View in AR
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ARScanScreen()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0284C7),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  elevation: 6,
+                ),
+                icon: const Icon(Icons.view_in_ar_rounded, size: 22),
+                label: const Text(
+                  'Buka Posisi AR di Dunia Nyata',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
-            child: Column(
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMetricTile({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String value,
+  }) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: const Color(0xFF0F172A),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 20),
+            const SizedBox(width: 10),
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.info_outline,
-                      color: _statusColor(widget.component.status),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Status: ${_statusLabel(widget.component.status)}',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: _statusColor(widget.component.status),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
                 Text(
-                  widget.component.description,
-                  style: const TextStyle(fontSize: 15, height: 1.5),
+                  title,
+                  style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13.5,
+                  ),
                 ),
               ],
             ),
-          ),
-          
-          // Panduan Perbaikan dengan Stepper
-          Expanded(
-            child: widget.component.maintenanceSteps.isEmpty
-                ? const Center(child: Text('Tidak ada tindakan yang diperlukan.'))
-                : Stepper(
-                    physics: const ClampingScrollPhysics(),
-                    currentStep: _currentStep,
-                    onStepContinue: () {
-                      if (_currentStep < widget.component.maintenanceSteps.length - 1) {
-                        setState(() {
-                          _currentStep += 1;
-                        });
-                      }
-                    },
-                    onStepCancel: () {
-                      if (_currentStep > 0) {
-                        setState(() {
-                          _currentStep -= 1;
-                        });
-                      }
-                    },
-                    onStepTapped: (step) {
-                      setState(() {
-                        _currentStep = step;
-                      });
-                    },
-                    controlsBuilder: (BuildContext context, ControlsDetails details) {
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 16.0),
-                        child: Row(
-                          children: [
-                            if (_currentStep < widget.component.maintenanceSteps.length - 1)
-                              ElevatedButton(
-                                onPressed: details.onStepContinue,
-                                child: const Text('Lanjut'),
-                              ),
-                            if (_currentStep == widget.component.maintenanceSteps.length - 1)
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                                onPressed: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Maintenance Selesai!')),
-                                  );
-                                  Navigator.pop(context);
-                                },
-                                child: const Text('Selesai', style: TextStyle(color: Colors.white)),
-                              ),
-                            const SizedBox(width: 8),
-                            if (_currentStep > 0)
-                              TextButton(
-                                onPressed: details.onStepCancel,
-                                child: const Text('Kembali'),
-                              ),
-                          ],
-                        ),
-                      );
-                    },
-                    steps: widget.component.maintenanceSteps.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final step = entry.value;
-                      return Step(
-                        title: Text(
-                          step.title,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        content: Container(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            step.description,
-                            style: const TextStyle(height: 1.5),
-                          ),
-                        ),
-                        isActive: _currentStep >= index,
-                        state: _currentStep > index ? StepState.complete : StepState.indexed,
-                      );
-                    }).toList(),
-                  ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

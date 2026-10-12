@@ -11,7 +11,7 @@ import 'package:ar_flutter_plugin/datatypes/node_types.dart';
 import 'package:ar_flutter_plugin/datatypes/hittest_result_types.dart';
 import 'package:vector_math/vector_math_64.dart' as vector;
 
-import '../models/component.dart';
+import '../models/component_model.dart';
 import '../services/api_service.dart';
 import 'component_detail_screen.dart';
 
@@ -47,7 +47,7 @@ class _ARScanScreenState extends State<ARScanScreen> {
       });
     } catch (e) {
       // Handle error gracefully
-      print('Gagal memuat komponen untuk AR: $e');
+      debugPrint('Gagal memuat komponen untuk AR: $e');
     }
   }
 
@@ -77,7 +77,7 @@ class _ARScanScreenState extends State<ARScanScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.6),
+                  color: Colors.black.withValues(alpha: 0.6),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Text(
@@ -141,8 +141,8 @@ class _ARScanScreenState extends State<ARScanScreen> {
       planeAnchor: null,
     );
 
-    if (didAdd == true && newNode.name != null) {
-      _placedNodes[newNode.name!] = component;
+    if (didAdd == true) {
+      _placedNodes[newNode.name] = component;
     }
 
     setState(() => _isPlacing = false);
@@ -169,14 +169,14 @@ class _ARScanScreenState extends State<ARScanScreen> {
     
     return showModalBottomSheet<Component>(
       context: context,
-      builder: (context) {
+      builder: (BuildContext sheetContext) {
         return SafeArea(
           child: ListView(
             shrinkWrap: true,
             children: _availableComponents.map((component) {
               return ListTile(
                 title: Text(component.name),
-                onTap: () => Navigator.pop(context, component),
+                onTap: () => Navigator.pop(sheetContext, component),
               );
             }).toList(),
           ),
